@@ -14,11 +14,12 @@ repositories {
 	mavenCentral()
 }
 
-def runeLiteVersion = 'latest.release'
-def runeliteSnapshotVersion = 'latest.integration'
+def runeLiteReleaseVersion = 'latest.release'
+def runeLiteSnapshotVersion = 'latest.integration'
+def runeLiteVersion = project.hasProperty("useSnapshot") ? runeLiteSnapshotVersion : runeLiteReleaseVersion
 
 dependencies {
-	compileOnly group: 'net.runelite', name: 'client', version: project.hasProperty("useSnapshot") ? runeliteSnapshotVersion : runeLiteVersion
+	compileOnly group: 'net.runelite', name: 'client', version: runeLiteVersion
 
 	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
