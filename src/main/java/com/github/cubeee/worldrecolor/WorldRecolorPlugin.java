@@ -9,6 +9,8 @@ import net.runelite.api.Scene;
 import net.runelite.api.SceneTileModel;
 import net.runelite.api.SceneTilePaint;
 import net.runelite.api.Tile;
+import net.runelite.api.coords.LocalPoint;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.PreMapLoad;
 import net.runelite.client.callback.ClientThread;
@@ -17,6 +19,11 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+
+import java.util.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
 
 @Slf4j
 @PluginDescriptor(
@@ -35,8 +42,12 @@ public class WorldRecolorPlugin extends Plugin {
 	private Integer nextReloadTick = null;
 	private final ColorMap tileColorMap = new ColorMap();
 
+	private final List<Integer> includedRegionIds = new ArrayList<>();
+	private final List<Integer> excludedRegionIds = new ArrayList<>();
+
 	@Override
 	protected void startUp() {
+		loadRegionIds();
 		reloadMap();
 	}
 
@@ -62,16 +73,22 @@ public class WorldRecolorPlugin extends Plugin {
 
 		String key = event.getKey();
 
-		// Do not trigger map reloads on adjustments if recoloring is not enabled
+		boolean triggerUpdate = true;
+
+		if (key.equals(ConfigKeys.INCLUDED_REGION_IDS) || key.equals(ConfigKeys.EXCLUDED_REGION_IDS)) {
+			loadRegionIds();
+		}
+
+		// Trigger map reloads on tile color adjustments only if tile recoloring is enabled
 		if (!config.isRecolorTiles()
 				&& (key.equals(ConfigKeys.TILE_HUE)
 				|| key.equals(ConfigKeys.TILE_SATURATION)
 				|| key.equals(ConfigKeys.TILE_LIGHTNESS_REDUCTION))) {
-			return;
+			triggerUpdate = false;
 		}
 
 		// Prevent excessive map reloads when config changes are spammed by running them on the next game tick
-		if (nextReloadTick == null) {
+		if (nextReloadTick == null && triggerUpdate) {
 			nextReloadTick = client.getTickCount() + 1;
 		}
 	}
@@ -117,17 +134,17 @@ public class WorldRecolorPlugin extends Plugin {
 
 		long tilesDuration = 0;
 
-		for (Tile[][] zTiles : tiles) {
-			for (Tile[] xTiles : zTiles) {
-				for (Tile tile : xTiles) {
-					if (tile == null) {
-						continue;
-					}
+        for (Tile[][] zTiles : tiles) {
+            for (Tile[] xTiles : zTiles) {
+                for (Tile tile : xTiles) {
+                    if (tile == null || !canRecolorRegion(scene, tile)) {
+                        continue;
+                    }
 
-					tilesDuration += recolorMap(tile, recolorTiles);
-				}
-			}
-		}
+                    tilesDuration += recolorMap(tile, recolorTiles);
+                }
+            }
+        }
 
 		log.debug("Color maps updated in {}ms, tiles colored in {}ms",
 			(colorMapsEnd - colorMapsStart) / 1_000_000,
@@ -164,4 +181,49 @@ public class WorldRecolorPlugin extends Plugin {
 		long end = System.nanoTime();
 		return end - start;
 	}
+
+	public boolean canRecolorRegion(Scene scene, Tile tile) {
+		if (includedRegionIds.isEmpty() && excludedRegionIds.isEmpty()) {
+			return true;
+		}
+		if (tile.getPlane() < 0) {
+			return true;
+		}
+		WorldPoint wp = WorldPoint.fromLocalInstance(scene, tile.getLocalLocation(), tile.getPlane());
+		int regionId = wp.getRegionID();
+
+		if (!includedRegionIds.isEmpty()) {
+			return includedRegionIds.contains(regionId);
+		}
+
+		return !excludedRegionIds.contains(regionId);
+	}
+
+	private void loadRegionIds() {
+		includedRegionIds.clear();
+		excludedRegionIds.clear();
+
+		String includedRegionIdsString = config.getIncludedRegionIds();
+		String excludedRegionIdsString = config.getExcludedRegionIds();
+		if (includedRegionIdsString.isEmpty() && excludedRegionIdsString.isEmpty()) {
+			return;
+		}
+
+		includedRegionIds.addAll(
+			Pattern.compile("[,\\n]")
+				.splitAsStream(includedRegionIdsString)
+				.filter(Predicate.not(String::isEmpty))
+				.map(Integer::valueOf)
+				.collect(Collectors.toList()));
+
+		excludedRegionIds.addAll(
+			Pattern.compile("[,\\n]")
+				.splitAsStream(excludedRegionIdsString)
+					.filter(Predicate.not(String::isEmpty))
+					.map(Integer::valueOf)
+					.collect(Collectors.toList()));
+
+		log.debug("Included region ids: {}, excluded region ids: {}", includedRegionIds.size(), excludedRegionIds.size());
+	}
+
 }

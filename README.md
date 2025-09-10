@@ -9,6 +9,9 @@ a better look when using recolored tiles.
 ## Current features
 * Reduce lightness of tiles
 * Change hue and saturation values of tiles
+* Restrict recolors by region ids
+  * Included regions restricts recoloring to only the given regions
+  * Excluded regions disables recoloring inside the given regions. Raids are excluded by default.
 
 ## Possible future features
 * Recolor tile colors on the minimap
