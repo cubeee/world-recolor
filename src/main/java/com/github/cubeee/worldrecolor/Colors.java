@@ -1,6 +1,6 @@
 package com.github.cubeee.worldrecolor;
 
-public class Colors {
+public final class Colors {
     public static final int MIN_HUE = 0;
     public static final int MAX_HUE = 63;
     public static final int MIN_SATURATION = 0;
@@ -14,14 +14,14 @@ public class Colors {
     private Colors() {}
 
     public static int[] getUnpackedJagexHsl(int jagexHsl) {
-        int h = unpackJagexHue(jagexHsl);
-        int s = unpackJagexSaturation(jagexHsl);
-        int l = unpackJagexLightness(jagexHsl);
-        return new int[] { h, s, l };
+        int hue = unpackJagexHue(jagexHsl);
+        int saturation = unpackJagexSaturation(jagexHsl);
+        int lightness = unpackJagexLightness(jagexHsl);
+        return new int[] { hue, saturation, lightness };
     }
 
-    public static int packJagexHsl(int h, int s, int l) {
-        return h << 10 | s << 7 | l;
+    public static int packJagexHsl(int hue, int saturation, int lightness) {
+        return hue << 10 | saturation << 7 | lightness;
     }
 
     public static int unpackJagexHue(int jagexHsl) {

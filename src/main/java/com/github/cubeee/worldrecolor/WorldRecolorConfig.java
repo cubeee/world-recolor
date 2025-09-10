@@ -18,13 +18,25 @@ public interface WorldRecolorConfig extends Config {
 		description = "",
 		position = ConfigKeys.TILES_SECTION_POSITION
 	)
-	String tileRecolors = "Tiles";
+	String TILE_RECOLORS_SECTION = "Tiles";
+
+	@ConfigSection(
+			name = "Advanced",
+			description = "",
+			position = ConfigKeys.ADVANCED_SECTION_POSITION,
+			closedByDefault = true
+	)
+	String ADVANCED_SECTION = "Advanced";
+
+	// ---
+	// --- TILES
+	// ---
 
 	@ConfigItem(
 		keyName = ConfigKeys.RECOLOR_TILES,
 		name = "Recolor tiles",
 		description = "",
-		section = tileRecolors
+		section = TILE_RECOLORS_SECTION
 	)
 	default boolean isRecolorTiles() {
 		return false;
@@ -35,7 +47,7 @@ public interface WorldRecolorConfig extends Config {
 		name = "Adjusted hue",
 		description = "",
 		position = 0,
-		section = tileRecolors
+		section = TILE_RECOLORS_SECTION
 	)
 	@Range(max = 63)
 	default int getAdjustedTileHue() {
@@ -47,7 +59,7 @@ public interface WorldRecolorConfig extends Config {
 		name = "Adjusted saturation",
 		description = "",
 		position = 1,
-		section = tileRecolors
+		section = TILE_RECOLORS_SECTION
 	)
 	@Range(max = 7)
 	default int getAdjustedTileSaturation() {
@@ -59,7 +71,7 @@ public interface WorldRecolorConfig extends Config {
 		name = "Lightness reduction",
 		description = "",
 		position = 2,
-		section = tileRecolors
+		section = TILE_RECOLORS_SECTION
 	)
 	@Units(Units.PERCENT)
 	@Range(max = 100)
@@ -70,20 +82,13 @@ public interface WorldRecolorConfig extends Config {
 	// ---
 	// --- ADVANCED
 	// ---
-	@ConfigSection(
-		name = "Advanced",
-		description = "",
-		position = ConfigKeys.ADVANCED_SECTION_POSITION,
-		closedByDefault = true
-	)
-	String advancedSection = "Advanced";
 
 	@ConfigItem(
 		keyName = ConfigKeys.INCLUDED_REGION_IDS,
 		name = "Included region ids",
 		description = "Only recolor inside these regions. Anything added here will always be used instead of excluded regions! Separated by commas and/or new lines.",
 		position = 1,
-		section = advancedSection
+		section = ADVANCED_SECTION
 	)
 	default String getIncludedRegionIds() {
 		return "";
@@ -94,7 +99,7 @@ public interface WorldRecolorConfig extends Config {
 		name = "Excluded region ids",
 		description = "Recolor everywhere but inside these regions. Used when included regions is empty. Separated by commas and/or new lines.",
 		position = 2,
-		section = advancedSection
+		section = ADVANCED_SECTION
 	)
 	default String getExcludedRegionIds() {
 		return COX_REGIONS + "," + TOB_REGIONS + "," + TOA_REGIONS;

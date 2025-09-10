@@ -4,6 +4,10 @@ on:
   schedule:
     - cron: 45 21 * * *
 
+concurrency:
+  group: snapshot-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-24.04

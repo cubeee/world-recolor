@@ -1,8 +1,6 @@
 package com.github.cubeee.worldrecolor;
 
-public class ConfigKeys {
-    private ConfigKeys() {}
-
+public final class ConfigKeys {
     public static final String PLUGIN_CONFIG_GROUP_NAME = "worldRecolor";
 
     public static final int TILES_SECTION_POSITION = 0;
@@ -15,5 +13,7 @@ public class ConfigKeys {
 
     public static final String INCLUDED_REGION_IDS = "includedRegionIds";
     public static final String EXCLUDED_REGION_IDS = "excludedRegionIds";
+
+    private ConfigKeys() {}
 
 }

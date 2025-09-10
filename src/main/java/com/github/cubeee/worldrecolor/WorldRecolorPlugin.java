@@ -9,7 +9,6 @@ import net.runelite.api.Scene;
 import net.runelite.api.SceneTileModel;
 import net.runelite.api.SceneTilePaint;
 import net.runelite.api.Tile;
-import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.PreMapLoad;
@@ -29,7 +28,10 @@ import java.util.stream.*;
 @PluginDescriptor(
 	name = "World Recolor"
 )
+@SuppressWarnings("PMD.TooManyMethods")
 public class WorldRecolorPlugin extends Plugin {
+	public static final int NEXT_REFRESH_UNSET = -1;
+
 	@Inject
 	private Client client;
 
@@ -39,11 +41,17 @@ public class WorldRecolorPlugin extends Plugin {
 	@Inject
 	private WorldRecolorConfig config;
 
-	private Integer nextReloadTick = null;
+	private int nextReloadTick = NEXT_REFRESH_UNSET;
 	private final ColorMap tileColorMap = new ColorMap();
 
-	private final List<Integer> includedRegionIds = new ArrayList<>();
-	private final List<Integer> excludedRegionIds = new ArrayList<>();
+	private final List<Integer> includedRegionIds;
+	private final List<Integer> excludedRegionIds;
+
+	public WorldRecolorPlugin() {
+		super();
+		this.includedRegionIds = new ArrayList<>();
+		this.excludedRegionIds = new ArrayList<>();
+	}
 
 	@Override
 	protected void startUp() {
@@ -65,7 +73,7 @@ public class WorldRecolorPlugin extends Plugin {
 	}
 
     @Subscribe
-	@SuppressWarnings("unused")
+	@SuppressWarnings({"unused", "PMD.CyclomaticComplexity"})
 	public void onConfigChanged(ConfigChanged event) {
 		if (!event.getGroup().equals(ConfigKeys.PLUGIN_CONFIG_GROUP_NAME)) {
 			return;
@@ -88,7 +96,7 @@ public class WorldRecolorPlugin extends Plugin {
 		}
 
 		// Prevent excessive map reloads when config changes are spammed by running them on the next game tick
-		if (nextReloadTick == null && triggerUpdate) {
+		if (triggerUpdate) {
 			nextReloadTick = client.getTickCount() + 1;
 		}
 	}
@@ -106,14 +114,14 @@ public class WorldRecolorPlugin extends Plugin {
     @Subscribe
 	@SuppressWarnings("unused")
 	public void onGameTick(GameTick gameTick) {
-		if (nextReloadTick != null && client.getTickCount() >= nextReloadTick) {
+		if (nextReloadTick != NEXT_REFRESH_UNSET && client.getTickCount() >= nextReloadTick) {
 			reloadMap();
-			nextReloadTick = null;
+			nextReloadTick = NEXT_REFRESH_UNSET;
 		}
 	}
 
     @Provides
-	@SuppressWarnings("unused")
+	@SuppressWarnings({"unused", "PMD.CommentDefaultAccessModifier"})
 	WorldRecolorConfig provideConfig(ConfigManager configManager) {
 		return configManager.getConfig(WorldRecolorConfig.class);
 	}
@@ -189,8 +197,8 @@ public class WorldRecolorPlugin extends Plugin {
 		if (tile.getPlane() < 0) {
 			return true;
 		}
-		WorldPoint wp = WorldPoint.fromLocalInstance(scene, tile.getLocalLocation(), tile.getPlane());
-		int regionId = wp.getRegionID();
+		WorldPoint worldPoint = WorldPoint.fromLocalInstance(scene, tile.getLocalLocation(), tile.getPlane());
+		int regionId = worldPoint.getRegionID();
 
 		if (!includedRegionIds.isEmpty()) {
 			return includedRegionIds.contains(regionId);
@@ -223,7 +231,9 @@ public class WorldRecolorPlugin extends Plugin {
 					.map(Integer::valueOf)
 					.collect(Collectors.toList()));
 
-		log.debug("Included region ids: {}, excluded region ids: {}", includedRegionIds.size(), excludedRegionIds.size());
+		if (log.isDebugEnabled()) {
+			log.debug("Included region ids: {}, excluded region ids: {}", includedRegionIds.size(), excludedRegionIds.size());
+		}
 	}
 
 }

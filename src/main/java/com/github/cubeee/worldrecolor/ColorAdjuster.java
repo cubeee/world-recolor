@@ -2,7 +2,7 @@ package com.github.cubeee.worldrecolor;
 
 import net.runelite.api.SceneTileModel;
 
-public class ColorAdjuster {
+public final class ColorAdjuster {
     private ColorAdjuster() {}
 
     public static void adjustSceneTileModel(SceneTileModel model, ColorMap colorMap) {

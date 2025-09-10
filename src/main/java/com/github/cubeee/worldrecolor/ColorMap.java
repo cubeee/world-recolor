@@ -1,11 +1,15 @@
 package com.github.cubeee.worldrecolor;
 
 public class ColorMap {
-    private final Integer[] modifiedColors = new Integer[Colors.MAX_HSL];
+    private final Integer[] modifiedColors;
 
-    private int lastHueShift = 0;
-    private int lastSaturationShift = 0;
-    private int lastLightnessReduction = 0;
+    private int lastHueShift;
+    private int lastSaturationShift;
+    private int lastLightnessReduction;
+
+    public ColorMap() {
+        this.modifiedColors = new Integer[Colors.MAX_HSL];
+    }
 
     public void updateColors(int hueShift, int saturationShift, int lightnessReduction) {
         if (hueShift == lastHueShift
@@ -25,7 +29,7 @@ public class ColorMap {
     }
 
     public int getModifiedHsl(int hsl) {
-        if (hsl == 12345678 || hsl < 0 || hsl > modifiedColors.length - 1) {
+        if (hsl == 12_345_678 || hsl < 0 || hsl > modifiedColors.length - 1) {
             return hsl;
         }
         Integer modified = modifiedColors[hsl];
@@ -33,7 +37,7 @@ public class ColorMap {
     }
 
     private int getNewHsl(int hsl, int hueShift, int satShift, int lightnessReduction) {
-        if (hsl == 12345678 || hsl < Colors.MIN_HSL || hsl > Colors.MAX_HSL) {
+        if (hsl == 12_345_678 || hsl < Colors.MIN_HSL || hsl > Colors.MAX_HSL) {
             return hsl;
         }
 
