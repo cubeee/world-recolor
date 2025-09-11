@@ -2,7 +2,7 @@ name: Build against RuneLite snapshot version
 on:
   workflow_dispatch:
   schedule:
-    - cron: 45 21 * * *
+    - cron: 45 18 * * *
 
 concurrency:
   group: snapshot-${{ github.ref }}
