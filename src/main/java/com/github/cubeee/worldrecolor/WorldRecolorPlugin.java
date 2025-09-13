@@ -89,8 +89,8 @@ public class WorldRecolorPlugin extends Plugin {
 
 		// Trigger map reloads on tile color adjustments only if tile recoloring is enabled
 		if (!config.isRecolorTiles()
-				&& (key.equals(ConfigKeys.TILE_HUE)
-				|| key.equals(ConfigKeys.TILE_SATURATION)
+				&& (key.equals(ConfigKeys.TILE_HUE_REDUCTION)
+				|| key.equals(ConfigKeys.TILE_SATURATION_REDUCTION)
 				|| key.equals(ConfigKeys.TILE_LIGHTNESS_REDUCTION))) {
 			triggerUpdate = false;
 		}
@@ -128,13 +128,13 @@ public class WorldRecolorPlugin extends Plugin {
 
 	private void recolorMap(Scene scene) {
 		boolean recolorTiles = config.isRecolorTiles();
-		int tileHueShift = config.getAdjustedTileHue();
-		int tileSaturationShift = config.getAdjustedTileSaturation();
-		int tileLightnessReduction = config.getLightnessReduction();
+		int tileHueReduction = config.getTileHueReduction();
+		int tileSaturationReduction = config.getTileSaturationReduction();
+		int tileLightnessReduction = config.getTileLightnessReduction();
 
 		// Cache the whole new adjusted color palette at once before recoloring the map
 		long colorMapsStart = System.nanoTime();
-		tileColorMap.updateColors(tileHueShift, tileSaturationShift, tileLightnessReduction);
+		tileColorMap.updateColors(tileHueReduction, tileSaturationReduction, tileLightnessReduction);
 		long colorMapsEnd = System.nanoTime();
 
 		log.debug("Recolor map... tiles={}", recolorTiles);

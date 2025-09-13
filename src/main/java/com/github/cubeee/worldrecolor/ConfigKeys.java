@@ -7,8 +7,8 @@ public final class ConfigKeys {
     public static final int ADVANCED_SECTION_POSITION = 1;
 
     public static final String RECOLOR_TILES = "recolorTiles";
-    public static final String TILE_HUE = "tileHue";
-    public static final String TILE_SATURATION = "tileSaturation";
+    public static final String TILE_HUE_REDUCTION = "tileHueReduction";
+    public static final String TILE_SATURATION_REDUCTION = "tileSaturationReduction";
     public static final String TILE_LIGHTNESS_REDUCTION = "tileLightnessReduction";
 
     public static final String INCLUDED_REGION_IDS = "includedRegionIds";

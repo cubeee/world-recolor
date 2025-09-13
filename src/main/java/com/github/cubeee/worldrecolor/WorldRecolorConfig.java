@@ -43,26 +43,28 @@ public interface WorldRecolorConfig extends Config {
 	}
 
 	@ConfigItem(
-		keyName = ConfigKeys.TILE_HUE,
-		name = "Adjusted hue",
+		keyName = ConfigKeys.TILE_HUE_REDUCTION,
+		name = "Hue reduction",
 		description = "",
 		position = 0,
 		section = TILE_RECOLORS_SECTION
 	)
-	@Range(min = -Colors.MAX_HUE, max = Colors.MAX_HUE)
-	default int getAdjustedTileHue() {
+	@Units(Units.PERCENT)
+	@Range(min = -100, max = 100)
+	default int getTileHueReduction() {
 		return 0;
 	}
 
 	@ConfigItem(
-		keyName = ConfigKeys.TILE_SATURATION,
-		name = "Adjusted saturation",
+		keyName = ConfigKeys.TILE_SATURATION_REDUCTION,
+		name = "Saturation reduction",
 		description = "",
 		position = 1,
 		section = TILE_RECOLORS_SECTION
 	)
-	@Range(min = -Colors.MAX_SATURATION, max = Colors.MAX_SATURATION)
-	default int getAdjustedTileSaturation() {
+	@Units(Units.PERCENT)
+	@Range(min = -100, max = 100)
+	default int getTileSaturationReduction() {
 		return 0;
 	}
 
@@ -75,7 +77,7 @@ public interface WorldRecolorConfig extends Config {
 	)
 	@Units(Units.PERCENT)
 	@Range(min = -100, max = 100)
-	default int getLightnessReduction() {
+	default int getTileLightnessReduction() {
 		return 80;
 	}
 
