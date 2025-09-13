@@ -49,7 +49,7 @@ public interface WorldRecolorConfig extends Config {
 		position = 0,
 		section = TILE_RECOLORS_SECTION
 	)
-	@Range(max = 63)
+	@Range(min = -Colors.MAX_HUE, max = Colors.MAX_HUE)
 	default int getAdjustedTileHue() {
 		return 0;
 	}
@@ -61,7 +61,7 @@ public interface WorldRecolorConfig extends Config {
 		position = 1,
 		section = TILE_RECOLORS_SECTION
 	)
-	@Range(max = 7)
+	@Range(min = -Colors.MAX_SATURATION, max = Colors.MAX_SATURATION)
 	default int getAdjustedTileSaturation() {
 		return 0;
 	}
@@ -74,7 +74,7 @@ public interface WorldRecolorConfig extends Config {
 		section = TILE_RECOLORS_SECTION
 	)
 	@Units(Units.PERCENT)
-	@Range(max = 100)
+	@Range(min = -100, max = 100)
 	default int getLightnessReduction() {
 		return 80;
 	}
