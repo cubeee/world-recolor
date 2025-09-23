@@ -127,6 +127,10 @@ public class WorldRecolorPlugin extends Plugin {
 	}
 
 	private void recolorMap(Scene scene) {
+		if (!canRecolorRegion()) {
+			return;
+		}
+
 		boolean recolorTiles = config.isRecolorTiles();
 		int tileHueReduction = config.getTileHueReduction();
 		int tileSaturationReduction = config.getTileSaturationReduction();
@@ -145,7 +149,7 @@ public class WorldRecolorPlugin extends Plugin {
         for (Tile[][] zTiles : tiles) {
             for (Tile[] xTiles : zTiles) {
                 for (Tile tile : xTiles) {
-                    if (tile == null || !canRecolorRegion(scene, tile)) {
+                    if (tile == null) {
                         continue;
                     }
 
@@ -190,15 +194,14 @@ public class WorldRecolorPlugin extends Plugin {
 		return end - start;
 	}
 
-	public boolean canRecolorRegion(Scene scene, Tile tile) {
+	public boolean canRecolorRegion() {
 		if (includedRegionIds.isEmpty() && excludedRegionIds.isEmpty()) {
 			return true;
 		}
-		if (tile.getPlane() < 0) {
-			return true;
-		}
-		WorldPoint worldPoint = WorldPoint.fromLocalInstance(scene, tile.getLocalLocation(), tile.getPlane());
-		int regionId = worldPoint.getRegionID();
+
+		WorldPoint worldPoint = client.getLocalPlayer().getWorldLocation();
+		WorldPoint instancePoint = WorldPoint.fromLocalInstance(client, client.getLocalPlayer().getLocalLocation());
+		int regionId = instancePoint != null ? instancePoint.getRegionID() : worldPoint.getRegionID();
 
 		if (!includedRegionIds.isEmpty()) {
 			return includedRegionIds.contains(regionId);
