@@ -1,23 +1,30 @@
 package com.github.cubeee.worldrecolor;
 
+import com.google.common.base.Joiner;
 import com.google.inject.Provides;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
+import net.runelite.api.Menu;
+import net.runelite.api.MenuAction;
+import net.runelite.api.MenuEntry;
 import net.runelite.api.Scene;
 import net.runelite.api.SceneTileModel;
 import net.runelite.api.SceneTilePaint;
 import net.runelite.api.Tile;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.GameTick;
+import net.runelite.api.events.MenuOpened;
 import net.runelite.api.events.PreMapLoad;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
+import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.util.HotkeyListener;
 
 import java.util.*;
 import java.util.function.*;
@@ -40,11 +47,27 @@ public class WorldRecolorPlugin extends Plugin {
 	@Inject
 	private WorldRecolorConfig config;
 
+	@Inject
+	private KeyManager keyManager;
+
+    private boolean showMenuOptions;
 	private int nextReloadTick = NEXT_REFRESH_UNSET;
 	private final ColorMap tileColorMap = new ColorMap();
 
 	private final List<Integer> includedRegionIds;
 	private final List<Integer> excludedRegionIds;
+
+	private final HotkeyListener hotkeyListener = new HotkeyListener(() -> config.getMenuOptionsKeybind()) {
+		@Override
+		public void hotkeyPressed() {
+			showMenuOptions = true;
+		}
+
+		@Override
+		public void hotkeyReleased() {
+			showMenuOptions = false;
+		}
+	};
 
 	public WorldRecolorPlugin() {
 		super();
@@ -56,11 +79,13 @@ public class WorldRecolorPlugin extends Plugin {
 	protected void startUp() {
 		loadRegionIds();
 		reloadMap();
+		keyManager.registerKeyListener(hotkeyListener);
 	}
 
 	@Override
 	protected void shutDown() {
 		reloadMap();
+		keyManager.unregisterKeyListener(hotkeyListener);
 	}
 
 	public void reloadMap() {
@@ -82,11 +107,15 @@ public class WorldRecolorPlugin extends Plugin {
 
 		boolean triggerUpdate = true;
 
-		if (key.equals(ConfigKeys.INCLUDED_REGION_IDS) || key.equals(ConfigKeys.EXCLUDED_REGION_IDS)) {
-			loadRegionIds();
+		loadRegionIds();
+
+		// No map reload on irrelevant configs
+		if (key.equals(ConfigKeys.ENABLE_MENU_OPTIONS)
+			|| key.equals(ConfigKeys.MENU_OPTIONS_HOTKEY)) {
+			triggerUpdate = false;
 		}
 
-		// Trigger map reloads on tile color adjustments only if tile recoloring is enabled
+		// Trigger map reloads on tile color adjustments and only if tile recoloring is enabled
 		if (!config.isRecolorTiles()
 				&& (key.equals(ConfigKeys.TILE_HUE_REDUCTION)
 				|| key.equals(ConfigKeys.TILE_SATURATION_REDUCTION)
@@ -94,7 +123,7 @@ public class WorldRecolorPlugin extends Plugin {
 			triggerUpdate = false;
 		}
 
-		// Prevent excessive map reloads when config changes are spammed by running them on the next game tick
+		// Prevent excessive map reloads when config changes are spammed by running it on the next game tick
 		if (triggerUpdate) {
 			nextReloadTick = client.getTickCount() + 1;
 		}
@@ -117,6 +146,75 @@ public class WorldRecolorPlugin extends Plugin {
 			reloadMap();
 			nextReloadTick = NEXT_REFRESH_UNSET;
 		}
+	}
+
+	@Subscribe
+	@SuppressWarnings("unused")
+	public void onMenuOpened(MenuOpened event) {
+		MenuEntry[] menuEntries = event.getMenuEntries();
+		if (config.enableMenuOptions() && showMenuOptions && hasWalkHereOption(menuEntries)) {
+			addContextMenuEntry(menuEntries.length - 1);
+		}
+	}
+
+	private boolean hasWalkHereOption(MenuEntry... menuEntries) {
+		if (menuEntries == null) {
+			return false;
+		}
+		for (MenuEntry menuEntry : menuEntries) {
+			if (menuEntry.getType() == MenuAction.WALK) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void addContextMenuEntry(int index) {
+		Tile selectedTile = client.getTopLevelWorldView().getSelectedSceneTile();
+		if (selectedTile == null) {
+			return;
+		}
+
+		WorldPoint worldPoint = WorldPoint.fromLocalInstance(client, selectedTile.getLocalLocation());
+		if (worldPoint == null) {
+			return;
+		}
+
+		int regionId = worldPoint.getRegionID();
+		boolean isIncluded = includedRegionIds.contains(regionId);
+		boolean isExcluded = excludedRegionIds.contains(regionId);
+		String includeText = isIncluded ? "Remove from included regions": "Add to included regions";
+		String excludeText = isExcluded ? "Remove from excluded regions" : "Add to excluded regions";
+
+		MenuEntry groupEntry = client.getMenu().createMenuEntry(index)
+			.setOption("World Recolor")
+			.setType(MenuAction.RUNELITE);
+
+		Menu subMenu = groupEntry.createSubMenu();
+
+		subMenu.createMenuEntry(0)
+			.setOption(includeText)
+			.setType(MenuAction.RUNELITE)
+			.onClick(e -> {
+				if (isIncluded) {
+					includedRegionIds.removeIf(i -> i == regionId);
+				} else {
+					includedRegionIds.add(regionId);
+				}
+				config.setIncludedRegionIds(Joiner.on(",").join(includedRegionIds));
+			});
+
+		subMenu.createMenuEntry(1)
+			.setOption(excludeText)
+			.setType(MenuAction.RUNELITE)
+			.onClick(e -> {
+				if (isExcluded) {
+					excludedRegionIds.removeIf(i -> i == regionId);
+				} else {
+					excludedRegionIds.add(regionId);
+				}
+				config.setExcludedRegionIds(Joiner.on(",").join(excludedRegionIds));
+			});
 	}
 
     @Provides

@@ -4,6 +4,7 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.ConfigSection;
+import net.runelite.client.config.Keybind;
 import net.runelite.client.config.Range;
 import net.runelite.client.config.Units;
 
@@ -21,12 +22,12 @@ public interface WorldRecolorConfig extends Config {
 	String TILE_RECOLORS_SECTION = "Tiles";
 
 	@ConfigSection(
-			name = "Advanced",
-			description = "",
-			position = ConfigKeys.ADVANCED_SECTION_POSITION,
-			closedByDefault = true
+		name = "Regions",
+		description = "",
+		position = ConfigKeys.REGIONS_SECTION_POSITION,
+		closedByDefault = true
 	)
-	String ADVANCED_SECTION = "Advanced";
+	String REGIONS_SECTION = "Regions";
 
 	// ---
 	// --- TILES
@@ -82,28 +83,64 @@ public interface WorldRecolorConfig extends Config {
 	}
 
 	// ---
-	// --- ADVANCED
+	// --- REGIONS
 	// ---
+
+	@ConfigItem(
+		keyName = ConfigKeys.ENABLE_MENU_OPTIONS,
+		name = "Enable menu options",
+		description = "",
+		section = REGIONS_SECTION,
+		position = 0
+	)
+	default boolean enableMenuOptions() {
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = ConfigKeys.MENU_OPTIONS_HOTKEY,
+		name = "Menu options keybind",
+		description = "Show menu options when this key is held down",
+		section = REGIONS_SECTION,
+		position = 1
+	)
+	default Keybind getMenuOptionsKeybind() {
+		return Keybind.CTRL;
+	}
 
 	@ConfigItem(
 		keyName = ConfigKeys.INCLUDED_REGION_IDS,
 		name = "Included region ids",
 		description = "Only recolor inside these regions. Anything added here will always be used instead of excluded regions! Separated by commas and/or new lines.",
-		position = 1,
-		section = ADVANCED_SECTION
+		position = 2,
+		section = REGIONS_SECTION
 	)
 	default String getIncludedRegionIds() {
 		return "";
 	}
 
 	@ConfigItem(
+		keyName = ConfigKeys.INCLUDED_REGION_IDS,
+		name = "",
+		description = ""
+	)
+	void setIncludedRegionIds(String ids);
+
+	@ConfigItem(
 		keyName = ConfigKeys.EXCLUDED_REGION_IDS,
 		name = "Excluded region ids",
 		description = "Recolor everywhere but inside these regions. Used when included regions is empty. Separated by commas and/or new lines.",
-		position = 2,
-		section = ADVANCED_SECTION
+		position = 3,
+		section = REGIONS_SECTION
 	)
 	default String getExcludedRegionIds() {
 		return COX_REGIONS + "," + TOB_REGIONS + "," + TOA_REGIONS;
 	}
+
+	@ConfigItem(
+		keyName = ConfigKeys.EXCLUDED_REGION_IDS,
+		name = "",
+		description = ""
+	)
+	void setExcludedRegionIds(String ids);
 }
