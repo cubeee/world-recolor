@@ -16,6 +16,9 @@
     <rule ref="category/java/design.xml">
         <exclude name="LawOfDemeter" />
         <exclude name="LoosePackageCoupling" />
+        <exclude name="ExcessiveImports" />
+        <exclude name="GodClass" />
+        <exclude name="TooManyMethods" />
     </rule>
     <rule ref="category/java/errorprone.xml" />
     <rule ref="category/java/multithreading.xml" />
