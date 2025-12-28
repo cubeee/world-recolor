@@ -50,6 +50,9 @@ public class WorldRecolorPlugin extends Plugin {
 	@Inject
 	private KeyManager keyManager;
 
+	@Inject
+	private ConfigManager configManager;
+
     private boolean showMenuOptions;
 	private int nextReloadTick = NEXT_REFRESH_UNSET;
 	private final ColorMap tileColorMap = new ColorMap();
@@ -152,7 +155,7 @@ public class WorldRecolorPlugin extends Plugin {
 	@SuppressWarnings("unused")
 	public void onMenuOpened(MenuOpened event) {
 		MenuEntry[] menuEntries = event.getMenuEntries();
-		if (config.enableMenuOptions() && showMenuOptions && hasWalkHereOption(menuEntries)) {
+		if (config.isMenuOptionsEnabled() && showMenuOptions && hasWalkHereOption(menuEntries)) {
 			addContextMenuEntry(menuEntries.length - 1);
 		}
 	}
@@ -201,7 +204,10 @@ public class WorldRecolorPlugin extends Plugin {
 				} else {
 					includedRegionIds.add(regionId);
 				}
-				config.setIncludedRegionIds(Joiner.on(",").join(includedRegionIds));
+				configManager.setConfiguration(
+						ConfigKeys.PLUGIN_CONFIG_GROUP_NAME,
+						ConfigKeys.INCLUDED_REGION_IDS,
+						Joiner.on(",").join(includedRegionIds));
 			});
 
 		subMenu.createMenuEntry(1)
@@ -213,7 +219,10 @@ public class WorldRecolorPlugin extends Plugin {
 				} else {
 					excludedRegionIds.add(regionId);
 				}
-				config.setExcludedRegionIds(Joiner.on(",").join(excludedRegionIds));
+				configManager.setConfiguration(
+						ConfigKeys.PLUGIN_CONFIG_GROUP_NAME,
+						ConfigKeys.EXCLUDED_REGION_IDS,
+						Joiner.on(",").join(excludedRegionIds));
 			});
 	}
 

@@ -93,7 +93,7 @@ public interface WorldRecolorConfig extends Config {
 		section = REGIONS_SECTION,
 		position = 0
 	)
-	default boolean enableMenuOptions() {
+	default boolean isMenuOptionsEnabled() {
 		return false;
 	}
 
@@ -120,13 +120,6 @@ public interface WorldRecolorConfig extends Config {
 	}
 
 	@ConfigItem(
-		keyName = ConfigKeys.INCLUDED_REGION_IDS,
-		name = "",
-		description = ""
-	)
-	void setIncludedRegionIds(String ids);
-
-	@ConfigItem(
 		keyName = ConfigKeys.EXCLUDED_REGION_IDS,
 		name = "Excluded region ids",
 		description = "Recolor everywhere but inside these regions. Used when included regions is empty. Separated by commas and/or new lines.",
@@ -136,11 +129,4 @@ public interface WorldRecolorConfig extends Config {
 	default String getExcludedRegionIds() {
 		return COX_REGIONS + "," + TOB_REGIONS + "," + TOA_REGIONS;
 	}
-
-	@ConfigItem(
-		keyName = ConfigKeys.EXCLUDED_REGION_IDS,
-		name = "",
-		description = ""
-	)
-	void setExcludedRegionIds(String ids);
 }
