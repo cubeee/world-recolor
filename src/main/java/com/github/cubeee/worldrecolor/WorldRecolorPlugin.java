@@ -103,13 +103,11 @@ public class WorldRecolorPlugin extends Plugin {
     @Subscribe
 	@SuppressWarnings("unused")
 	public void onPreMapLoad(PreMapLoad preMapLoad) {
-        clientThread.invoke(() -> {
-            long start = System.nanoTime();
-            recolorMap(preMapLoad.getScene());
-            long end = System.nanoTime();
-            long duration = end - start;
-            log.debug("Map recolor done in {}ms", duration / 1_000_000);
-        });
+		long start = System.nanoTime();
+		recolorMap(preMapLoad.getScene());
+		long end = System.nanoTime();
+		long duration = end - start;
+		log.debug("Map recolor done in {}ms", duration / 1_000_000);
 	}
 
     @Subscribe
