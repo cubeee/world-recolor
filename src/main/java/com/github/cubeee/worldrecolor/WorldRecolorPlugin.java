@@ -27,9 +27,6 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.util.HotkeyListener;
 
 import java.util.*;
-import java.util.function.*;
-import java.util.regex.*;
-import java.util.stream.*;
 
 @Slf4j
 @PluginDescriptor(
@@ -316,28 +313,25 @@ public class WorldRecolorPlugin extends Plugin {
 	}
 
 	private void loadRegionIds() {
-		includedRegionIds.clear();
-		excludedRegionIds.clear();
-
 		String includedRegionIdsString = config.getIncludedRegionIds();
 		String excludedRegionIdsString = config.getExcludedRegionIds();
 		if (includedRegionIdsString.isEmpty() && excludedRegionIdsString.isEmpty()) {
 			return;
 		}
 
-		includedRegionIds.addAll(
-			Pattern.compile("[,\\n]")
-				.splitAsStream(includedRegionIdsString)
-				.filter(Predicate.not(String::isEmpty))
-				.map(Integer::valueOf)
-				.collect(Collectors.toList()));
+		try {
+			includedRegionIds.clear();
+			includedRegionIds.addAll(Utils.parseRegionIds(includedRegionIdsString));
+		} catch (Exception e) {
+			log.error("Failed to parse included region ids", e);
+		}
 
-		excludedRegionIds.addAll(
-			Pattern.compile("[,\\n]")
-				.splitAsStream(excludedRegionIdsString)
-					.filter(Predicate.not(String::isEmpty))
-					.map(Integer::valueOf)
-					.collect(Collectors.toList()));
+		try {
+			excludedRegionIds.clear();
+			excludedRegionIds.addAll(Utils.parseRegionIds(excludedRegionIdsString));
+		} catch (Exception e) {
+			log.error("Failed to parse excluded region ids", e);
+		}
 
 		if (log.isDebugEnabled()) {
 			log.debug("Included region ids: {}, excluded region ids: {}", includedRegionIds.size(), excludedRegionIds.size());

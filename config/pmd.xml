@@ -19,6 +19,7 @@
         <exclude name="ExcessiveImports" />
         <exclude name="GodClass" />
         <exclude name="TooManyMethods" />
+        <exclude name="AvoidCatchingGenericException" />
     </rule>
     <rule ref="category/java/errorprone.xml" />
     <rule ref="category/java/multithreading.xml" />
