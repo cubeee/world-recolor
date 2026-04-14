@@ -269,6 +269,12 @@ public class WorldRecolorPlugin extends Plugin {
 
 	private long recolorTile(Tile tile) {
 		long start = System.nanoTime();
+
+		Tile bridgeTile = tile.getBridge();
+		if (bridgeTile != null) {
+			recolorTile(bridgeTile);
+		}
+
 		SceneTilePaint paint = tile.getSceneTilePaint();
 		if (paint != null && paint.getTexture() == -1) {
 			int newNw = tileColorMap.getModifiedHsl(paint.getNwColor());
