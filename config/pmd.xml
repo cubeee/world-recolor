@@ -6,12 +6,16 @@
     <description>
         Custom adjustments of default PMD rules
     </description>
-    <rule ref="category/java/bestpractices.xml" />
+    <rule ref="category/java/bestpractices.xml">
+        <exclude name="JUnitTestContainsTooManyAsserts" />
+        <exclude name="JUnitAssertionsShouldIncludeMessage" />
+    </rule>
     <rule ref="category/java/codestyle.xml">
         <exclude name="LocalVariableCouldBeFinal" />
         <exclude name="MethodArgumentCouldBeFinal" />
         <exclude name="LongVariable" />
         <exclude name="OnlyOneReturn" />
+        <exclude name="AtLeastOneConstructor" />
     </rule>
     <rule ref="category/java/design.xml">
         <exclude name="LawOfDemeter" />
