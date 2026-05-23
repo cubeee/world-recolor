@@ -14,10 +14,12 @@ import net.runelite.api.SceneTileModel;
 import net.runelite.api.SceneTilePaint;
 import net.runelite.api.Tile;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.MenuOpened;
 import net.runelite.api.events.PreMapLoad;
 import net.runelite.client.callback.ClientThread;
+import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
@@ -49,6 +51,11 @@ public class WorldRecolorPlugin extends Plugin {
 
 	@Inject
 	private ConfigManager configManager;
+
+    @Inject
+    private ChatMessageManager chatMessageManager;
+
+    private final VersionMessageManager versionMessageManager = new VersionMessageManager();
 
     private boolean showMenuOptions;
 	private int nextReloadTick = NEXT_REFRESH_UNSET;
@@ -133,6 +140,14 @@ public class WorldRecolorPlugin extends Plugin {
 			nextReloadTick = client.getTickCount() + 1;
 		}
 	}
+
+    @Subscribe
+    @SuppressWarnings("unused")
+    public void onGameStateChanged(GameStateChanged event) {
+        if (event.getGameState() == GameState.LOGGED_IN) {
+            versionMessageManager.sendUnseenVersionMessages(chatMessageManager, configManager);
+        }
+    }
 
     @Subscribe
 	@SuppressWarnings("unused")
