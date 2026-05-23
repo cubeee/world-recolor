@@ -8,11 +8,15 @@ import net.runelite.client.config.Keybind;
 import net.runelite.client.config.Range;
 import net.runelite.client.config.Units;
 
+import java.awt.Color;
+
 @ConfigGroup(ConfigKeys.PLUGIN_CONFIG_GROUP_NAME)
 public interface WorldRecolorConfig extends Config {
 	String COX_REGIONS = "13136,13137,13393,13138,13394,13139,13395,13140,13396,13141,13397,13145,13401,12889";
 	String TOB_REGIONS = "12613,13125,13122,13123,13379,12612,12611";
 	String TOA_REGIONS = "14160,15698,15700,14162,14164,15186,15188,14674,14676,15184,15696";
+
+	Color DEFAULT_TILE_FLAT_COLOR = new Color(21, 21, 21);
 
 	@ConfigSection(
 		name = "Tiles",
@@ -37,7 +41,8 @@ public interface WorldRecolorConfig extends Config {
 		keyName = ConfigKeys.RECOLOR_TILES,
 		name = "Recolor tiles",
 		description = "",
-		section = TILE_RECOLORS_SECTION
+		section = TILE_RECOLORS_SECTION,
+		position = 0
 	)
 	default boolean isRecolorTiles() {
 		return false;
@@ -47,11 +52,11 @@ public interface WorldRecolorConfig extends Config {
 		keyName = ConfigKeys.TILE_HUE_REDUCTION,
 		name = "Hue reduction",
 		description = "",
-		position = 0,
+		position = 1,
 		section = TILE_RECOLORS_SECTION
 	)
 	@Units(Units.PERCENT)
-	@Range(min = -100, max = 100)
+	@Range(min = Integer.MIN_VALUE)
 	default int getTileHueReduction() {
 		return 0;
 	}
@@ -60,11 +65,11 @@ public interface WorldRecolorConfig extends Config {
 		keyName = ConfigKeys.TILE_SATURATION_REDUCTION,
 		name = "Saturation reduction",
 		description = "",
-		position = 1,
+		position = 2,
 		section = TILE_RECOLORS_SECTION
 	)
 	@Units(Units.PERCENT)
-	@Range(min = -100, max = 100)
+	@Range(min = Integer.MIN_VALUE)
 	default int getTileSaturationReduction() {
 		return 0;
 	}
@@ -73,13 +78,35 @@ public interface WorldRecolorConfig extends Config {
 		keyName = ConfigKeys.TILE_LIGHTNESS_REDUCTION,
 		name = "Lightness reduction",
 		description = "",
-		position = 2,
+		position = 3,
 		section = TILE_RECOLORS_SECTION
 	)
 	@Units(Units.PERCENT)
-	@Range(min = -100, max = 100)
+	@Range(min = Integer.MIN_VALUE)
 	default int getTileLightnessReduction() {
 		return 80;
+	}
+
+	@ConfigItem(
+		keyName = ConfigKeys.TILE_USE_FLAT_COLOR,
+		name = "Use flat color",
+		description = "Recolor tiles with the flat color instead of modifying originals with percentages",
+		position = 4,
+		section = TILE_RECOLORS_SECTION
+	)
+	default boolean isUseFlatTileColor() {
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = ConfigKeys.TILE_FLAT_COLOR,
+		name = "Flat color",
+		description = "",
+		position = 5,
+		section = TILE_RECOLORS_SECTION
+	)
+	default Color getFlatTileColor() {
+		return DEFAULT_TILE_FLAT_COLOR;
 	}
 
 	// ---

@@ -4,12 +4,14 @@ public final class ConfigKeys {
     public static final String PLUGIN_CONFIG_GROUP_NAME = "worldRecolor";
 
     public static final int TILES_SECTION_POSITION = 0;
-    public static final int REGIONS_SECTION_POSITION = 100;
+    public static final int REGIONS_SECTION_POSITION = 1000;
 
     public static final String RECOLOR_TILES = "recolorTiles";
     public static final String TILE_HUE_REDUCTION = "tileHueReduction";
     public static final String TILE_SATURATION_REDUCTION = "tileSaturationReduction";
     public static final String TILE_LIGHTNESS_REDUCTION = "tileLightnessReduction";
+    public static final String TILE_USE_FLAT_COLOR = "tileUseFlatColor";
+    public static final String TILE_FLAT_COLOR = "tileFlatColor";
 
     public static final String ENABLE_MENU_OPTIONS = "enableMenuOptions";
     public static final String MENU_OPTIONS_HOTKEY = "menuOptionsHotkey";

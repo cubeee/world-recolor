@@ -1,17 +1,26 @@
 package com.github.cubeee.worldrecolor;
 
+import java.awt.Color;
+
 public class ColorMap {
     private final Integer[] modifiedColors;
 
     private int lastHueReduction;
     private int lastSaturationReduction;
     private int lastLightnessReduction;
+    private boolean useFlatColor;
+    private Integer flatColor;
 
     public ColorMap() {
         this.modifiedColors = new Integer[Colors.MAX_HSL];
     }
 
-    public void updateColors(int hueReduction, int saturationReduction, int lightnessReduction) {
+    public void updateColors(int hueReduction, int saturationReduction, int lightnessReduction,
+                             boolean useFlatColor, Color flatColor) {
+        this.useFlatColor = useFlatColor;
+        this.flatColor = Colors.colorToRs2hsb(
+                flatColor != null ? flatColor : WorldRecolorConfig.DEFAULT_TILE_FLAT_COLOR);
+
         if (hueReduction == lastHueReduction
             && saturationReduction == lastSaturationReduction
             && lightnessReduction == lastLightnessReduction) {
@@ -31,6 +40,9 @@ public class ColorMap {
     public int getModifiedHsl(int hsl) {
         if (hsl == 12_345_678 || hsl < 0 || hsl > modifiedColors.length - 1) {
             return hsl;
+        }
+        if (this.useFlatColor) {
+            return this.flatColor;
         }
         Integer modified = modifiedColors[hsl];
         return modified == null ? hsl : modified;
@@ -60,5 +72,4 @@ public class ColorMap {
             min,
             max);
     }
-
 }

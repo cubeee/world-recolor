@@ -123,6 +123,11 @@ public class WorldRecolorPlugin extends Plugin {
 			triggerUpdate = false;
 		}
 
+		// Trigger map reload on flat tile color change only if it is in use
+		if (!config.isUseFlatTileColor() && key.equals(ConfigKeys.TILE_FLAT_COLOR)) {
+			triggerUpdate = false;
+		}
+
 		// Prevent excessive map reloads when config changes are spammed by running it on the next game tick
 		if (triggerUpdate) {
 			nextReloadTick = client.getTickCount() + 1;
@@ -236,13 +241,15 @@ public class WorldRecolorPlugin extends Plugin {
 			return;
 		}
 
-		int tileHueReduction = config.getTileHueReduction();
-		int tileSaturationReduction = config.getTileSaturationReduction();
-		int tileLightnessReduction = config.getTileLightnessReduction();
-
 		// Cache the whole new adjusted color palette at once before recoloring the map
 		long colorMapsStart = System.nanoTime();
-		tileColorMap.updateColors(tileHueReduction, tileSaturationReduction, tileLightnessReduction);
+		tileColorMap.updateColors(
+				config.getTileHueReduction(),
+				config.getTileSaturationReduction(),
+				config.getTileLightnessReduction(),
+				config.isUseFlatTileColor(),
+				config.getFlatTileColor()
+		);
 		long colorMapsEnd = System.nanoTime();
 
 		boolean isInstance = scene.isInstance();
@@ -254,9 +261,11 @@ public class WorldRecolorPlugin extends Plugin {
 		for (Tile[][] zTiles : tiles) {
 			for (Tile[] xTiles : zTiles) {
 				for (Tile tile : xTiles) {
-					if (canRecolorTile(scene, tile)) {
-						tilesDuration += recolorTile(tile);
+					boolean canRecolor = canRecolorTile(scene, tile);
+					if (!canRecolor) {
+						continue;
 					}
+					tilesDuration += recolorTile(tile);
 				}
 			}
 		}
