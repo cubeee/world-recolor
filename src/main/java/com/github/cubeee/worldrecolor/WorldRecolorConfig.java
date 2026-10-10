@@ -15,6 +15,7 @@ public interface WorldRecolorConfig extends Config {
 	String COX_REGIONS = "13136,13137,13393,13138,13394,13139,13395,13140,13396,13141,13397,13145,13401,12889";
 	String TOB_REGIONS = "12613,13125,13122,13123,13379,12612,12611";
 	String TOA_REGIONS = "14160,15698,15700,14162,14164,15186,15188,14674,14676,15184,15696";
+	String DOOM_REGIONS = "13668,14180";
 
 	Color DEFAULT_TILE_FLAT_COLOR = new Color(21, 21, 21);
 
@@ -149,11 +150,11 @@ public interface WorldRecolorConfig extends Config {
 	@ConfigItem(
 		keyName = ConfigKeys.EXCLUDED_REGION_IDS,
 		name = "Excluded region ids",
-		description = "Recolor everywhere but inside these regions. Used when included regions is empty. Separated by commas and/or new lines.",
+		description = "Recolor everywhere but inside these regions. Used when included regions is empty. Separated by commas and/or new lines. Defaults: raids, doom",
 		position = 3,
 		section = REGIONS_SECTION
 	)
 	default String getExcludedRegionIds() {
-		return COX_REGIONS + "," + TOB_REGIONS + "," + TOA_REGIONS;
+		return COX_REGIONS + "," + TOB_REGIONS + "," + TOA_REGIONS + "," + DOOM_REGIONS;
 	}
 }

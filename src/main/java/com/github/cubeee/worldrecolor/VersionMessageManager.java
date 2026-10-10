@@ -14,7 +14,8 @@ public class VersionMessageManager {
 
     private static final String[] MESSAGES = {
             "Tiles can now be recolored with a flat color.",
-            "Tile colors can now be adjusted with much larger percentages."
+            "Tile colors can now be adjusted with much larger percentages.",
+            "Doom regions are now excluded by default. You can exclude them yourself by typing in 13668,14180"
     };
 
     public void sendUnseenVersionMessages(ChatMessageManager chatMessageManager, ConfigManager configManager) {
