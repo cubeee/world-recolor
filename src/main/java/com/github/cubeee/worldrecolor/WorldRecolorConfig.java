@@ -46,7 +46,7 @@ public interface WorldRecolorConfig extends Config {
 		position = 0
 	)
 	default boolean isRecolorTiles() {
-		return false;
+		return true;
 	}
 
 	@ConfigItem(
