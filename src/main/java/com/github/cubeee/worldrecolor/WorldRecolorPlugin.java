@@ -5,6 +5,7 @@ import com.google.inject.Provides;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
+import net.runelite.api.Constants;
 import net.runelite.api.GameState;
 import net.runelite.api.Menu;
 import net.runelite.api.MenuAction;
@@ -61,8 +62,8 @@ public class WorldRecolorPlugin extends Plugin {
 	private int nextReloadTick = NEXT_REFRESH_UNSET;
 	private final ColorMap tileColorMap = new ColorMap();
 
-	private final List<Integer> includedRegionIds;
-	private final List<Integer> excludedRegionIds;
+	private final Set<Integer> includedRegionIds;
+	private final Set<Integer> excludedRegionIds;
 
 	private final HotkeyListener hotkeyListener = new HotkeyListener(() -> config.getMenuOptionsKeybind()) {
 		@Override
@@ -78,8 +79,8 @@ public class WorldRecolorPlugin extends Plugin {
 
 	public WorldRecolorPlugin() {
 		super();
-		this.includedRegionIds = new ArrayList<>();
-		this.excludedRegionIds = new ArrayList<>();
+		this.includedRegionIds = new LinkedHashSet<>();
+		this.excludedRegionIds = new LinkedHashSet<>();
 	}
 
 	@Override
@@ -249,6 +250,7 @@ public class WorldRecolorPlugin extends Plugin {
 		return configManager.getConfig(WorldRecolorConfig.class);
 	}
 
+	@SuppressWarnings({"PMD.CognitiveComplexity", "PMD.CyclomaticComplexity"})
 	private void recolorMap(Scene scene) {
 		boolean recolorTiles = config.isRecolorTiles();
 
@@ -271,29 +273,52 @@ public class WorldRecolorPlugin extends Plugin {
 		log.debug("Recolor map... instance={}, tiles={}", isInstance, recolorTiles);
 		Tile[][][] tiles = isInstance ? scene.getTiles() : scene.getExtendedTiles();
 
-		long tilesDuration = 0;
+		boolean filterRegions = !includedRegionIds.isEmpty() || !excludedRegionIds.isEmpty();
+		// Extended tiles start before the scene base
+		int sceneOffset = isInstance ? 0 : (Constants.EXTENDED_SCENE_SIZE - Constants.SCENE_SIZE) / 2;
+		int baseX = scene.getBaseX() - sceneOffset;
+		int baseY = scene.getBaseY() - sceneOffset;
 
-		for (Tile[][] zTiles : tiles) {
-			for (Tile[] xTiles : zTiles) {
-				for (Tile tile : xTiles) {
-					boolean canRecolor = canRecolorTile(scene, tile);
-					if (!canRecolor) {
-						continue;
-					}
-					tilesDuration += recolorTile(tile);
-				}
-			}
-		}
+        for (Tile[][] zTiles : tiles) {
+            for (int x = 0; x < zTiles.length; x++) {
+                for (int y = 0; y < zTiles[x].length; y++) {
+                    Tile tile = zTiles[x][y];
+                    if (tile == null) {
+                        continue;
+                    }
+                    if (filterRegions) {
+                        int regionId = isInstance
+                                ? WorldPoint.fromLocalInstance(scene, tile.getLocalLocation(), tile.getPlane()).getRegionID()
+                                : getRegionId(baseX + x, baseY + y);
+                        if (!canRecolorRegion(regionId)) {
+                            continue;
+                        }
+                    }
+                    recolorTile(tile);
+                }
+            }
+        }
+		long tilesEnd = System.nanoTime();
 
 		log.debug("Color maps updated in {}ms, tiles colored in {}ms",
 			(colorMapsEnd - colorMapsStart) / 1_000_000,
-			tilesDuration / 1_000_000
+			(tilesEnd - colorMapsEnd) / 1_000_000
 		);
 	}
 
-	private long recolorTile(Tile tile) {
-		long start = System.nanoTime();
+	// Same as WorldPoint.getRegionID without allocating a WorldPoint per tile
+	private static int getRegionId(int worldX, int worldY) {
+		return ((worldX >> 6) << 8) | (worldY >> 6);
+	}
 
+	private boolean canRecolorRegion(int regionId) {
+		if (!includedRegionIds.isEmpty()) {
+			return includedRegionIds.contains(regionId);
+		}
+		return !excludedRegionIds.contains(regionId);
+	}
+
+	private void recolorTile(Tile tile) {
 		Tile bridgeTile = tile.getBridge();
 		if (bridgeTile != null) {
 			recolorTile(bridgeTile);
@@ -319,27 +344,6 @@ public class WorldRecolorPlugin extends Plugin {
 			ColorAdjuster.adjustSceneTileModel(model, tileColorMap);
 			tile.setSceneTileModel(model);
 		}
-
-		long end = System.nanoTime();
-		return end - start;
-	}
-
-	private boolean canRecolorTile(Scene scene, Tile tile) {
-		if (tile == null) {
-			return false;
-		}
-		if (includedRegionIds.isEmpty() && excludedRegionIds.isEmpty()) {
-			return true;
-		}
-		WorldPoint worldPoint = WorldPoint.fromLocalInstance(scene, tile.getLocalLocation(), tile.getPlane());
-		return canRecolorRegion(worldPoint.getRegionID());
-	}
-
-	private boolean canRecolorRegion(int regionId) {
-		if (!includedRegionIds.isEmpty()) {
-			return includedRegionIds.contains(regionId);
-		}
-		return !excludedRegionIds.contains(regionId);
 	}
 
 	private void loadRegionIds() {
