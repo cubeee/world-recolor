@@ -349,19 +349,19 @@ public class WorldRecolorPlugin extends Plugin {
 	private void loadRegionIds() {
 		String includedRegionIdsString = config.getIncludedRegionIds();
 		String excludedRegionIdsString = config.getExcludedRegionIds();
+		includedRegionIds.clear();
+		excludedRegionIds.clear();
 		if (includedRegionIdsString.isEmpty() && excludedRegionIdsString.isEmpty()) {
 			return;
 		}
 
 		try {
-			includedRegionIds.clear();
 			includedRegionIds.addAll(Utils.parseRegionIds(includedRegionIdsString));
 		} catch (Exception e) {
 			log.error("Failed to parse included region ids", e);
 		}
 
 		try {
-			excludedRegionIds.clear();
 			excludedRegionIds.addAll(Utils.parseRegionIds(excludedRegionIdsString));
 		} catch (Exception e) {
 			log.error("Failed to parse excluded region ids", e);
