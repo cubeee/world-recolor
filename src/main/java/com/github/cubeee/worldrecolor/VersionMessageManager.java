@@ -13,9 +13,10 @@ public class VersionMessageManager {
     private static final String LAST_SEEN_MESSAGE_CONFIG_KEY = "lastSeenMessage";
 
     private static final String[] MESSAGES = {
-            "Tiles can now be recolored with a flat color.",
-            "Tile colors can now be adjusted with much larger percentages.",
-            "Doom regions are now excluded by default. You can exclude them yourself by typing in 13668,14180"
+        "Tiles can now be recolored with a flat color.",
+        "Tile colors can now be adjusted with much larger percentages.",
+        "Doom regions are now excluded by default. You can exclude them yourself by typing in 13668,14180",
+        "The Fractured Archive regions are now excluded by default. You can exclude them yourself by adding 16213 to 16217, 16469 to 16473, 16725 to 16729, 16981 to 16985 and 17237 to 17241."
     };
 
     public void sendUnseenVersionMessages(ChatMessageManager chatMessageManager, ConfigManager configManager) {
