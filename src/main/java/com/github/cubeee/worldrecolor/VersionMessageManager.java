@@ -41,7 +41,7 @@ public class VersionMessageManager {
         }
 
         String messagePrefix = ColorUtil.wrapWithColorTag("[World Recolor] ", Color.GREEN);
-        for (int i = lastSeenMessageIndex; i < MESSAGES.length; i++) {
+        for (int i = lastSeenMessageIndex + 1; i < MESSAGES.length; i++) {
             String message = MESSAGES[i];
 
             chatMessageManager.queue(QueuedMessage.builder()
